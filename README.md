@@ -54,10 +54,10 @@ For the element that you want
     $('#pageTitle').editInline(options)
         
 where options is an array of options:
-*url => url for the AJAX to post the result to
-*method => the http method to use e.g. PUT, POST
-*color => the color of the edit link and text editing field outline
-*fieldName => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
+* url => url for the AJAX to post the result to
+* method => the http method to use e.g. PUT, POST
+* color => the color of the edit link and text editing field outline
+* fieldName => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
 
   
 Home
