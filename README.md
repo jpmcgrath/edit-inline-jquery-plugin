@@ -51,11 +51,13 @@ Example use:
 
 For the element that you want 
 
-    $('#pageTitle').editInline(postURL, linkColor)
+    $('#pageTitle').editInline(options)
         
-where:
-  postURL => url for the AJAX to post the result to
-  linkColor => the color of the edit link
+where options is an array of options:
+  url => url for the AJAX to post the result to
+  method => the http method to use e.g. PUT, POST
+  color => the color of the edit link and text editing field outline
+  fieldName => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
 
   
 Home

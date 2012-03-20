@@ -14,14 +14,19 @@
 * Date: Tues 20th March
 *******************************************************************/
 
-jQuery.fn.editInline = function(postURL, linkColor) {
+jQuery.fn.editInline = function(options) {
   var editLink, editable, linkStyle, url;
   editable = jQuery(this);
+  options.method || (options.method = 'put');
+  options.dataType || (options.dataType = 'json');
+  options.fieldName || (options.fieldName = editable.attr('name'));
+  options.fieldName || (options.fieldName = "value");
   editable.css({
     position: 'relative'
   });
-  linkStyle = "top: 2; right: 2px; position: absolute; font-size: 12px; text-transform: lowercase;  display: inline-block;";
-  if (!!linkColor) linkStyle += "color:" + linkColor + ";";
+  linkStyle = editable.attr('style');
+  linkStyle += "top: 2; right: 2px; position: absolute; font-size: 12px; text-transform: lowercase;  display: inline-block;";
+  if (!!options.color) linkStyle += "color:" + options.color + ";";
   editLink = jQuery('<a/>', {
     href: '#edit',
     "class": 'edit_inline_link',
@@ -47,7 +52,7 @@ jQuery.fn.editInline = function(postURL, linkColor) {
     borderWidth = 1;
     height = editable.height() - 2 * borderWidth;
     weight = editable.width() - 2 * borderWidth;
-    editableStyle = "background-color:" + editable.css('background-color') + ";" + "font-size:" + editable.css('font-size') + ";" + "font-weight:" + editable.css('font-weight') + ";" + "font-family:" + editable.css('font-family') + ";" + "color:" + editable.css('color') + ";" + "height:" + height + "px;" + "width:" + weight + "px;" + "text-transform:" + editable.css('text-transform') + ";" + "font-style:" + editable.css('font-style') + ";" + "border:" + borderWidth + "px solid " + linkColor + ';';
+    editableStyle = "background-color:" + editable.css('background-color') + ";" + "font-size:" + editable.css('font-size') + ";" + "font-weight:" + editable.css('font-weight') + ";" + "font-family:" + editable.css('font-family') + ";" + "color:" + editable.css('color') + ";" + "height:" + height + "px;" + "width:" + weight + "px;" + "text-transform:" + editable.css('text-transform') + ";" + "font-style:" + editable.css('font-style') + ";" + "border:" + borderWidth + "px solid " + options.color + ';';
     "display: inline-block;";
     editField = jQuery('<input/>', {
       type: 'text',
@@ -62,20 +67,17 @@ jQuery.fn.editInline = function(postURL, linkColor) {
     editField.val(content);
     editField.focus();
     return editField.focusout(function() {
-      var fieldName;
+      var ajaxArgs, fieldName;
       editField = editable.find("input[type='text']");
       content = editField.val();
-      fieldName = editField.attr('name');
-      fieldName || (fieldName = "value");
       editable.html(content);
-      editable.editInline(postURL, linkColor);
-      return jQuery.ajax({
-        url: postURL,
-        type: "POST",
-        dataType: "json",
-        data: {
-          fieldName: content
-        },
+      editable.editInline(options);
+      fieldName = options.fieldName;
+      ajaxArgs = {
+        url: options.url,
+        type: options.method,
+        dataType: options.dataType,
+        data: {},
         success: function(data, text) {
           var success;
           return success = true;
@@ -83,7 +85,9 @@ jQuery.fn.editInline = function(postURL, linkColor) {
         error: function(request, status, error) {
           return window.showAlert("Error communicating with the server. Content \"" + content + "\" is not saved.");
         }
-      });
+      };
+      ajaxArgs["data"][fieldName] = content;
+      return jQuery.ajax(ajaxArgs);
     });
   });
 };

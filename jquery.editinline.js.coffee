@@ -11,14 +11,20 @@
 #
 # Date: Tues 20th March
 
-jQuery.fn.editInline = (postURL, linkColor) ->
-  
+jQuery.fn.editInline = (options) ->
   editable = jQuery(this)
+  
+  options.method ||= 'put'
+  options.dataType ||= 'json'
+  options.fieldName ||= editable.attr('name')
+  options.fieldName ||= "value"
+  
   editable.css
     position: 'relative'
   
-  linkStyle = "top: 2; right: 2px; position: absolute; font-size: 12px; text-transform: lowercase;  display: inline-block;"
-  linkStyle += "color:" + linkColor + ";" if !!linkColor
+  linkStyle = editable.attr('style')
+  linkStyle += "top: 2; right: 2px; position: absolute; font-size: 12px; text-transform: lowercase;  display: inline-block;"
+  linkStyle += "color:" + options.color + ";" if !!options.color
   
   # insert an edit button that will display on hover
   editLink = jQuery '<a/>'
@@ -58,9 +64,10 @@ jQuery.fn.editInline = (postURL, linkColor) ->
       "width:" + weight + "px;" +
       "text-transform:" + editable.css('text-transform') + ";" +
       "font-style:" + editable.css('font-style') + ";" +
-      "border:" + borderWidth + "px solid " + linkColor + ';'
+      "border:" + borderWidth + "px solid " + options.color + ';'
       "display: inline-block;"
     
+    # create the edit field - in the future we will determine if multi line text area is appropriate
     editField  = jQuery '<input/>'
       type: 'text'
       name: editable.attr('name')
@@ -79,21 +86,25 @@ jQuery.fn.editInline = (postURL, linkColor) ->
       # find the input and get the content
       editField = editable.find("input[type='text']")
       content = editField.val()
-      fieldName = editField.attr('name')
-      fieldName ||= "value"
       editable.html(content)
-      editable.editInline(postURL, linkColor)
+      editable.editInline(options)
+      fieldName = options.fieldName
       
-      # post the content back via ajax
-      jQuery.ajax
-        url: postURL
-        type: "POST"
-        dataType: "json"
+      ajaxArgs = 
+        url: options.url
+        type: options.method
+        dataType: options.dataType
         data:
-          fieldName : content
+          {}
         success: (data, text) ->
           success = true
         error: (request, status, error) ->
           window.showAlert "Error communicating with the server. Content \"" + content + "\" is not saved."
       
+      ajaxArgs["data"][fieldName] = content
+
+      # post the content back via ajax
+      jQuery.ajax(ajaxArgs)
+        
+        
       
