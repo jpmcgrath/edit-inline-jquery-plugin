@@ -40,13 +40,13 @@ jQuery.fn.editInline = (postURL, linkColor) ->
   # get the url from the attribute of the item
   url = editable.attr('update_url')
   
-  jQuery(".edit_inline_link").click ->
+  jQuery(".edit_inline_link").click (event) ->
     editable = jQuery(this).parent()
     event.preventDefault()
-        
+    borderWidth = 1    
     # border is 1px on each side
-    height = editable.height() - 2
-    weight = editable.width() - 2
+    height = editable.height() - 2*borderWidth
+    weight = editable.width() - 2*borderWidth
     
     # replace the text with a text field of the same color and shape as the text
     editableStyle = "background-color:" + editable.css('background-color') + ";" +
@@ -58,7 +58,7 @@ jQuery.fn.editInline = (postURL, linkColor) ->
       "width:" + weight + "px;" +
       "text-transform:" + editable.css('text-transform') + ";" +
       "font-style:" + editable.css('font-style') + ";" +
-      "border: 1px solid;" +
+      "border:" + borderWidth + "px solid " + linkColor + ';'
       "display: inline-block;"
     
     editField  = jQuery '<input/>'
@@ -77,6 +77,22 @@ jQuery.fn.editInline = (postURL, linkColor) ->
 
     editField.focusout ->
       # find the input and get the content
-      content = editable.find("input[type='text']").val()
+      editField = editable.find("input[type='text']")
+      content = editField.val()
+      fieldName = editField.attr('name')
       editable.html(content)
       editable.editInline(postURL, linkColor)
+      
+      # post the content back via ajax
+      jQuery.ajax
+        url: postURL
+        type: "POST"
+        dataType: "json"
+        data:
+          value: content
+        success: (data, text) ->
+          success = true
+        error: (request, status, error) ->
+          window.showAlert "Error communicating with the server. Content \"" + content + "\" is not saved."
+      
+      
