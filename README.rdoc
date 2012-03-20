@@ -7,17 +7,27 @@ your application via AJAX.
 
 == Overview
 
-Project Home[http://jamespmcgrath.com/projects/]
+Why another inline editing jquery plugin?
 
-A major aim of this project is ease of use, and for the editor to have minimal disruption to the page layout.
+In short: Customising existing options looked like more work than building my own.
 
-This plugin is written in CoffeeScript, then translated/compiled into Javascript.
+After looking at a number of plugins, none of them had the user interface that I desired (simple, no buttons etc) and they all interferred with the page layout when activated making content jump all over the place.
+
+The major aims of this project:
+  1. are ease of use
+  1. minimal controls
+  1. minimal disruption to the page layout
+
+This plugin is written in CoffeeScript, then translated/compiled into Javascript. I prefer taking contributions in CoffeeScript, but javascript is fine also.
 
 == Installation
 
 Copy jquery.editinline.js (or jquery.editinline.js.coffee if you have an asset pipeline) into a public directory in your application.
 
+== Home
+  At jamespmcgrath.com[http://jamespmcgrath.com/projects/edit-inline-jquery-plugin]
+
 == Contribution
 
-I welcome contributers, so please get in contact. Make a pull request for simple bugfixes.
+I welcome contributions, so please get in contact. Make a pull request for simple bugfixes.
 
