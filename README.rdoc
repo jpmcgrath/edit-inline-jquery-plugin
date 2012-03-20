@@ -1,0 +1,23 @@
+= Inline Edit - A jQuery Plugin
+
+This jQuery plugin aims to make it easy to make any text content into an editable form that posts changes to
+your application via AJAX.
+
+---
+
+== Overview
+
+Project Home[http://jamespmcgrath.com/projects/]
+
+A major aim of this project is ease of use, and for the editor to have minimal disruption to the page layout.
+
+This plugin is written in CoffeeScript, then translated/compiled into Javascript.
+
+== Installation
+
+Copy jquery.editinline.js (or jquery.editinline.js.coffee if you have an asset pipeline) into a public directory in your application.
+
+== Contribution
+
+I welcome contributers, so please get in contact. Make a pull request for simple bugfixes.
+
