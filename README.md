@@ -46,5 +46,5 @@ You can find this plugin's home at [jamespmcgrath.com](http://jamespmcgrath.com/
 Contribution
 ------------
 
-I welcome contributions, so please get in contact. Make a pull request for simple bugfixes.
+I welcome contributions, so please [say hello](http://jamespmcgrath.com/hello).
 
