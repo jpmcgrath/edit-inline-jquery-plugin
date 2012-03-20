@@ -63,7 +63,7 @@ jQuery.fn.editInline = (postURL, linkColor) ->
     
     editField  = jQuery '<input/>'
       type: 'text'
-      name: 'editable' #editable.attr('name')
+      name: editable.attr('name')
       style: editableStyle
     
     contentClone = editable.clone()
@@ -80,6 +80,7 @@ jQuery.fn.editInline = (postURL, linkColor) ->
       editField = editable.find("input[type='text']")
       content = editField.val()
       fieldName = editField.attr('name')
+      fieldName ||= "value"
       editable.html(content)
       editable.editInline(postURL, linkColor)
       
@@ -89,7 +90,7 @@ jQuery.fn.editInline = (postURL, linkColor) ->
         type: "POST"
         dataType: "json"
         data:
-          value: content
+          fieldName : content
         success: (data, text) ->
           success = true
         error: (request, status, error) ->
