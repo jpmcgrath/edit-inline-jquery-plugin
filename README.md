@@ -43,6 +43,11 @@ Home
 
 You can find this plugin's home at [jamespmcgrath.com](http://jamespmcgrath.com/projects/edit-inline-jquery-plugin)
 
+Licence
+-------
+
+Inline Edit is dual licensed under [MIT](http://en.wikipedia.org/wiki/MIT_License) or [GPLv2](http://en.wikipedia.org/wiki/GNU_General_Public_License) licenses
+
 Contribution
 ------------
 
