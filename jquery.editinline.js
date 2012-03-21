@@ -13,7 +13,6 @@
 *
 * Date: Tues 20th March
 *******************************************************************/
-
 jQuery.fn.editInline = function(options) {
   var editLink, editable, linkStyle, url;
   editable = jQuery(this);
@@ -21,11 +20,11 @@ jQuery.fn.editInline = function(options) {
   options.dataType || (options.dataType = 'json');
   options.fieldName || (options.fieldName = editable.attr('name'));
   options.fieldName || (options.fieldName = "value");
+  options.color || (options.color = editable.css("color"));
   editable.css({
     position: 'relative'
   });
-  linkStyle = editable.attr('style');
-  linkStyle += "top: 2; right: 2px; position: absolute; font-size: 12px; text-transform: lowercase;  display: inline-block;";
+  linkStyle = "position: absolute; top: 2px; right: 2px; font-size: 12px; text-transform: lowercase;  display: inline-block;";
   if (!!options.color) linkStyle += "color:" + options.color + ";";
   editLink = jQuery('<a/>', {
     href: '#edit',
@@ -35,58 +34,69 @@ jQuery.fn.editInline = function(options) {
   });
   editLink.hide();
   editable.append(editLink);
-  editable.mouseenter(function() {
+  editable.mouseover(function() {
     var link;
     link = jQuery(this).children(".edit_inline_link");
     return link.show();
-  }).mouseleave(function() {
+  }).mouseout(function() {
     var link;
     link = jQuery(this).children(".edit_inline_link");
     return link.hide();
   });
   url = editable.attr('update_url');
   return jQuery(".edit_inline_link").click(function(event) {
-    var borderWidth, content, contentClone, editField, editableStyle, height, weight;
+    var borderWidth, content, contentClone, editField, editableFontSize, editableStyle, height, weight;
     editable = jQuery(this).parent();
     event.preventDefault();
     borderWidth = 1;
     height = editable.height() - 2 * borderWidth;
     weight = editable.width() - 2 * borderWidth;
-    editableStyle = "background-color:" + editable.css('background-color') + ";" + "font-size:" + editable.css('font-size') + ";" + "font-weight:" + editable.css('font-weight') + ";" + "font-family:" + editable.css('font-family') + ";" + "color:" + editable.css('color') + ";" + "height:" + height + "px;" + "width:" + weight + "px;" + "text-transform:" + editable.css('text-transform') + ";" + "font-style:" + editable.css('font-style') + ";" + "border:" + borderWidth + "px solid " + options.color + ';';
-    "display: inline-block;";
-    editField = jQuery('<input/>', {
-      type: 'text',
-      name: editable.attr('name'),
-      style: editableStyle
-    });
+    editableStyle = editable.attr('style') + ("background-color:" + (editable.css('background-color')) + ";") + ("font-size: " + (editable.css('font-size')) + ";") + ("font-weight: " + (editable.css('font-weight')) + ";") + ("font-family: " + (editable.css('font-family')) + ";") + ("color: " + (editable.css('color')) + ";") + ("height: " + height + "px;") + ("width: " + weight + "px;") + ("text-transform: " + (editable.css('text-transform')) + ";") + ("font-style: " + (editable.css('font-style')) + ";") + ("border: " + borderWidth + "px solid " + options.color + ";");
+    "display: inline-block;" + "z-index: 1000;";
+    editField = "";
+    editableFontSize = parseFloat(editable.css('font-size'));
+    if (editable.height() > editableFontSize * 1.5) {
+      editField = jQuery('<textarea/>', {
+        name: editable.attr('name'),
+        style: editableStyle
+      });
+    } else {
+      editField = jQuery('<input/>', {
+        type: 'text',
+        name: editable.attr('name'),
+        style: editableStyle
+      });
+    }
     contentClone = editable.clone();
     contentClone.find(".edit_inline_link").remove();
-    content = contentClone.html();
+    content = jQuery.trim(contentClone.html());
     editable.html(editField.clone().wrap('<div>').parent().html());
-    editField = editable.find("input[type='text']");
+    editField = editable.find("input[type='text'], textarea");
     editField.val(content);
     editField.focus();
+    if (!!options.callbackAfterShow) options.callbackAfterShow();
     return editField.focusout(function() {
-      var ajaxArgs, fieldName;
-      editField = editable.find("input[type='text']");
-      content = editField.val();
+      var ajaxArgs;
+      editField = editable.find("input[type='text'], textarea");
+      content = jQuery.trim(editField.val());
       editable.html(content);
+      if (!!options.callbackAfterHide) options.callbackAfterHide();
       editable.editInline(options);
-      fieldName = options.fieldName;
       ajaxArgs = {
         url: options.url,
         type: options.method,
         dataType: options.dataType,
         data: {},
         success: function(data, text) {
-          var success;
-          return success = true;
+          if (!!options.callbackAjaxSuccess) {
+            return options.callbackAjaxSuccess();
+          }
         },
         error: function(request, status, error) {
-          return window.showAlert("Error communicating with the server. Content \"" + content + "\" is not saved.");
+          if (!!options.callbackAjaxError) return options.callbackAjaxError();
         }
       };
-      ajaxArgs["data"][fieldName] = content;
+      ajaxArgs["data"][options.fieldName] = content;
       return jQuery.ajax(ajaxArgs);
     });
   });
