@@ -60,7 +60,13 @@ where options is an array of options:
 * *color* => the color of the edit link and text editing field outline
 * *fieldName* => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
 
-  
+The option can also include a number of callback functions
+
+* *callbackAjaxSuccess* => This callback will be called when the ajax returns success
+* *callbackAjaxError* => This callback will be called when the ajax returns an error
+* *callbackAfterShow* => This callback will be called when the edit field is shown
+* *callbackAfterHide* => This callback will be called when the edit field is hidden
+
 Home
 ----
 
