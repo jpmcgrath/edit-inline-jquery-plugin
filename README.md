@@ -59,6 +59,7 @@ where options is an array of options:
 * *method* => the http method to use e.g. PUT, POST
 * *color* => the color of the edit link and text editing field outline
 * *fieldName* => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
+* *linkVisibility* => If undefined, the edit link will appear when the user hovers their mouse over the editable element. If "hide" the link will always be hidden (useful if you need to trigger showing the link yourself). If "show" the link will always show.
 
 The option can also include a number of callback functions
 

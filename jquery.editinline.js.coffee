@@ -3,7 +3,7 @@
 # Edit Inline - A jQuery Plugin to allow editing content inline
 # http://jamespmcgrath.com/projects/edit-inline-jquery-plugin/
 #
-# Version: 0.1.0
+# Version: 0.1.1
 # Copyright 2012 James P. McGrath - http://jamespmcgrath.com
 #
 # Dual licensed under MIT or GPLv2 licenses
@@ -33,15 +33,18 @@ jQuery.fn.editInline = (options) ->
     style: linkStyle
     html: "edit"
     
-  editLink.hide()
+  # hide the link if visibility is set to "hide" or it is not defined
+  editLink.hide() if !options.linkVisibility || options.linkVisibility == "hide"
+  
   editable.append(editLink)
-    
-  editable.mouseover(->
-    link = jQuery(this).children(".edit_inline_link")
-    link.show()
-  ).mouseout ->
-    link = jQuery(this).children(".edit_inline_link")
-    link.hide()
+  
+  if !options.linkVisibility
+    editable.mouseenter(->
+      link = jQuery(this).children(".edit_inline_link")
+      link.show()
+    ).mouseleave ->
+      link = jQuery(this).children(".edit_inline_link")
+      link.hide()
 
   # get the url from the attribute of the item
   url = editable.attr('update_url')
@@ -65,15 +68,16 @@ jQuery.fn.editInline = (options) ->
       "width: #{weight}px;" +
       "text-transform: #{editable.css('text-transform')};" +
       "font-style: #{editable.css('font-style')};" +
-      "border: #{borderWidth}px solid #{options.color};"
+      "border: #{borderWidth}px solid #{options.color};" +
       "display: inline-block;" +
+      "padding: 0;" +
       "z-index: 1000;"
     
     # create the edit field - if the text is a single line, then make it an text field
     editField = ""
     editableFontSize = parseFloat(editable.css('font-size'))
-
-    if editable.height() > editableFontSize*1.5
+    
+    if options.fieldType == "textarea" or editable.height() > editableFontSize*1.5
       # need a textarea
       editField  = jQuery '<textarea/>'
         name: editable.attr('name')
@@ -86,44 +90,63 @@ jQuery.fn.editInline = (options) ->
     
     contentClone = editable.clone()
     contentClone.find(".edit_inline_link").remove()
-    content = jQuery.trim(contentClone.html())
+    originalContent = jQuery.trim(contentClone.html())
+    originalContent = originalContent.replace("&nbsp;","")
     #editField.val(content)
     editable.html(editField.clone().wrap('<div>').parent().html())
     editField = editable.find("input[type='text'], textarea")
-    editField.val(content)
+    editField.val(originalContent)
     editField.focus()
     
     # call back
     options.callbackAfterShow() if !!options.callbackAfterShow
     
+    # keyboard shortcuts
+    # ESC - remove focus
+    editField.keypress (e) ->
+      # if the key is the ESC key, stop editing - replace with original value
+      if e.which is 0
+        e.preventDefault()
+        jQuery(this).val(originalContent).blur()
+        
+      # test if the key is the ENTER key
+      else if e.which is 13
+        # stop the regular action that is fired by the enter key (i.e. form submit)
+        e.preventDefault()
+        jQuery(this).blur()
+    
+    # when focus leaves the field, remove the field and take the content
+    # and stick it in the editable element
     editField.focusout ->
       # find the input and get the content
       editField = editable.find("input[type='text'], textarea")
-      content = jQuery.trim(editField.val())
-      editable.html(content)
-      
+      newContent = jQuery.trim(editField.val())
+      editable.html(newContent + "&nbsp;")
+        
       # now the edit field has been removed, call the callback
       options.callbackAfterHide() if !!options.callbackAfterHide
-      
+        
       # setup the link again
       editable.editInline(options)
       
-      ajaxArgs = 
-        url: options.url
-        type: options.method
-        dataType: options.dataType
-        data:
-          {}
-        success: (data, text) ->
-          options.callbackAjaxSuccess() if !!options.callbackAjaxSuccess 
-
-        error: (request, status, error) ->
-          options.callbackAjaxError() if !!options.callbackAjaxError 
-      
-      ajaxArgs["data"][options.fieldName] = content
-
-      # post the content back via ajax
-      jQuery.ajax(ajaxArgs)
+      # only do the ajax if the content has changed
+      if newContent != originalContent
+        ajaxArgs = 
+          url: options.url
+          type: options.method
+          dataType: options.dataType
+          data:
+            {}
+          success: (data, text) ->
+            options.callbackAjaxSuccess() if !!options.callbackAjaxSuccess 
+  
+          error: (request, status, error) ->
+            options.callbackAjaxError() if !!options.callbackAjaxError 
+        
+        ajaxArgs["data"][options.fieldName] = newContent
+  
+        # post the content back via ajax
+        jQuery.ajax(ajaxArgs)
         
         
       

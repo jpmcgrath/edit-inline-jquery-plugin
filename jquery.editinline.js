@@ -32,30 +32,33 @@ jQuery.fn.editInline = function(options) {
     style: linkStyle,
     html: "edit"
   });
-  editLink.hide();
+  if (!options.linkVisibility || options.linkVisibility === "hide") {
+    editLink.hide();
+  }
   editable.append(editLink);
-  editable.mouseover(function() {
-    var link;
-    link = jQuery(this).children(".edit_inline_link");
-    return link.show();
-  }).mouseout(function() {
-    var link;
-    link = jQuery(this).children(".edit_inline_link");
-    return link.hide();
-  });
+  if (!options.linkVisibility) {
+    editable.mouseenter(function() {
+      var link;
+      link = jQuery(this).children(".edit_inline_link");
+      return link.show();
+    }).mouseleave(function() {
+      var link;
+      link = jQuery(this).children(".edit_inline_link");
+      return link.hide();
+    });
+  }
   url = editable.attr('update_url');
   return jQuery(".edit_inline_link").click(function(event) {
-    var borderWidth, content, contentClone, editField, editableFontSize, editableStyle, height, weight;
+    var borderWidth, contentClone, editField, editableFontSize, editableStyle, height, originalContent, weight;
     editable = jQuery(this).parent();
     event.preventDefault();
     borderWidth = 1;
     height = editable.height() - 2 * borderWidth;
     weight = editable.width() - 2 * borderWidth;
-    editableStyle = editable.attr('style') + ("background-color:" + (editable.css('background-color')) + ";") + ("font-size: " + (editable.css('font-size')) + ";") + ("font-weight: " + (editable.css('font-weight')) + ";") + ("font-family: " + (editable.css('font-family')) + ";") + ("color: " + (editable.css('color')) + ";") + ("height: " + height + "px;") + ("width: " + weight + "px;") + ("text-transform: " + (editable.css('text-transform')) + ";") + ("font-style: " + (editable.css('font-style')) + ";") + ("border: " + borderWidth + "px solid " + options.color + ";");
-    "display: inline-block;" + "z-index: 1000;";
+    editableStyle = editable.attr('style') + ("background-color:" + (editable.css('background-color')) + ";") + ("font-size: " + (editable.css('font-size')) + ";") + ("font-weight: " + (editable.css('font-weight')) + ";") + ("font-family: " + (editable.css('font-family')) + ";") + ("color: " + (editable.css('color')) + ";") + ("height: " + height + "px;") + ("width: " + weight + "px;") + ("text-transform: " + (editable.css('text-transform')) + ";") + ("font-style: " + (editable.css('font-style')) + ";") + ("border: " + borderWidth + "px solid " + options.color + ";") + "display: inline-block;" + "padding: 0;" + "z-index: 1000;";
     editField = "";
     editableFontSize = parseFloat(editable.css('font-size'));
-    if (editable.height() > editableFontSize * 1.5) {
+    if (options.fieldType === "textarea" || editable.height() > editableFontSize * 1.5) {
       editField = jQuery('<textarea/>', {
         name: editable.attr('name'),
         style: editableStyle
@@ -69,35 +72,47 @@ jQuery.fn.editInline = function(options) {
     }
     contentClone = editable.clone();
     contentClone.find(".edit_inline_link").remove();
-    content = jQuery.trim(contentClone.html());
+    originalContent = jQuery.trim(contentClone.html());
+    originalContent = originalContent.replace("&nbsp;", "");
     editable.html(editField.clone().wrap('<div>').parent().html());
     editField = editable.find("input[type='text'], textarea");
-    editField.val(content);
+    editField.val(originalContent);
     editField.focus();
     if (!!options.callbackAfterShow) options.callbackAfterShow();
+    editField.keypress(function(e) {
+      if (e.which === 0) {
+        e.preventDefault();
+        return jQuery(this).val(originalContent).blur();
+      } else if (e.which === 13) {
+        e.preventDefault();
+        return jQuery(this).blur();
+      }
+    });
     return editField.focusout(function() {
-      var ajaxArgs;
+      var ajaxArgs, newContent;
       editField = editable.find("input[type='text'], textarea");
-      content = jQuery.trim(editField.val());
-      editable.html(content);
+      newContent = jQuery.trim(editField.val());
+      editable.html(newContent + "&nbsp;");
       if (!!options.callbackAfterHide) options.callbackAfterHide();
       editable.editInline(options);
-      ajaxArgs = {
-        url: options.url,
-        type: options.method,
-        dataType: options.dataType,
-        data: {},
-        success: function(data, text) {
-          if (!!options.callbackAjaxSuccess) {
-            return options.callbackAjaxSuccess();
+      if (newContent !== originalContent) {
+        ajaxArgs = {
+          url: options.url,
+          type: options.method,
+          dataType: options.dataType,
+          data: {},
+          success: function(data, text) {
+            if (!!options.callbackAjaxSuccess) {
+              return options.callbackAjaxSuccess();
+            }
+          },
+          error: function(request, status, error) {
+            if (!!options.callbackAjaxError) return options.callbackAjaxError();
           }
-        },
-        error: function(request, status, error) {
-          if (!!options.callbackAjaxError) return options.callbackAjaxError();
-        }
-      };
-      ajaxArgs["data"][options.fieldName] = content;
-      return jQuery.ajax(ajaxArgs);
+        };
+        ajaxArgs["data"][options.fieldName] = newContent;
+        return jQuery.ajax(ajaxArgs);
+      }
     });
   });
 };
