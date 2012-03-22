@@ -23,6 +23,16 @@ The major aims of this project are:
 This plugin is written in CoffeeScript, then translated/compiled into Javascript. 
 I prefer taking contributions in CoffeeScript, but javascript is fine also.
 
+Features / Behaviour
+--------------------
+* Displays a "edit" link on hover over the editable element
+* When focus leaves the edit field, changes are commited via AJAX (no change = no ajax)
+* Copies the current styling of the text to the edit field so as to "look" the same as the content being edited
+* Keyboard shortcuts:
+  * ESC - stop editing and return content to original state (does not fire ajax)
+  * ENTER - stop editing and commit changes
+
+
 Requirements
 ------------
 jQuery 1.4+
@@ -56,8 +66,8 @@ For the element that you want
 where options is an array of options:
 
 * *url* => url for the AJAX to post the result to
-* *method* => the http method to use e.g. PUT, POST
-* *color* => the color of the edit link and text editing field outline
+* *method* => the http method to use for AJAX e.g. PUT, POST
+* *color* => the color of the edit link and text editing field outline. By default this will be the color of the text of the selected DOM element
 * *fieldName* => the name of the field/parameter that the data is sent back with (takes preceedence over the name attribute of the DOM element)
 * *linkVisibility* => If undefined, the edit link will appear when the user hovers their mouse over the editable element. If "hide" the link will always be hidden (useful if you need to trigger showing the link yourself). If "show" the link will always show.
 
@@ -81,5 +91,5 @@ Inline Edit is dual licensed under [MIT](http://en.wikipedia.org/wiki/MIT_Licens
 Contribution
 ------------
 
-I welcome contributions, so please [say hello](http://jamespmcgrath.com/hello).
+I welcome contributions, bug fixes and feature requests. Please [say hello](http://jamespmcgrath.com/hello).
 
